@@ -387,7 +387,7 @@ export default function PopularCaptionsPageClient({
             className="text-gray-900 dark:text-white text-4xl font-bold
                         tracking-tight scale-y-150"
           >
-            GET CRACKD
+            MY MEMES
           </h2>
         </div>
       </div>
@@ -506,7 +506,12 @@ export default function PopularCaptionsPageClient({
           </div>
         </div>
       {visibleCaptions.length === 0 ? (
-        <p className="text-center text-gray-400 mt-12 text-lg">No captions found.</p>
+        <div className="mx-auto mt-12 max-w-lg text-center">
+          <p className="text-lg font-semibold text-foreground">Your feed is ready for its first meme.</p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Create a post in Humor Project or tap New Post. Only content linked to your account appears here.
+          </p>
+        </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {visibleCaptions.map((caption, index) => {

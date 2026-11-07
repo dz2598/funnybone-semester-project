@@ -9,6 +9,14 @@ const CAMPUS_LOL_IMAGE_ORIGIN = 'https://erivhrwjfmjhcehbmmgd.supabase.co/'
 export const fetchPopularCaptionsAction = async (limit = 100, period: Period = 'all') => {
   const supabase = await createClient()
 
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user || user.is_anonymous) {
+    return []
+  }
+
   // Build date filter based on period
   let query = supabase
     .from('captions')
@@ -31,6 +39,9 @@ export const fetchPopularCaptionsAction = async (limit = 100, period: Period = '
     // This semester-project deployment ranks the memes synchronized from the
     // user's Campus LOL app, rather than the bundled teaching-data archive.
     .like('images.url', `${CAMPUS_LOL_IMAGE_ORIGIN}%`)
+    // Every feed is private to the signed-in user. The scheduled Campus LOL
+    // sync maps each source account to its matching Funnybone profile ID.
+    .eq('profile_id', user.id)
     .eq('is_public', true)
     .order('like_count', { ascending: false })
     .eq('is_public', true)

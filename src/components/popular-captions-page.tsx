@@ -2,6 +2,7 @@ import { fetchPopularCaptionsAction } from "@/app/actions/captions/fetch-popular
 import { fetchUserCaptionVotesAction } from "@/app/actions/captions";
 import { checkAuthStatusAction } from "@/app/actions/auth/check-auth-status";
 import PopularCaptionsPageClient from "@/components/popular-captions-page-client";
+import { redirect } from "next/navigation";
 
 type PopularCaptionsFilter = "all" | "year" | "past30" | "week";
 
@@ -29,12 +30,17 @@ export default async function PopularCaptionsPage({
   pastYearHref,
   allTimeHref,
 }: PopularCaptionsPageProps) {
+  const auth = await checkAuthStatusAction();
+  const isAuthenticated = auth.isAuthenticated && !auth.isAnonymous;
+
+  if (!isAuthenticated) {
+    redirect("/login");
+  }
+
   const captions = (await fetchPopularCaptionsAction(
     100,
     initialFilter
   )) as PopularCaption[];
-  const auth = await checkAuthStatusAction();
-  const isAuthenticated = auth.isAuthenticated && !auth.isAnonymous;
 
   let initialUserVotes: Record<string, 1 | -1 | null> = {};
   if (isAuthenticated && captions.length > 0) {

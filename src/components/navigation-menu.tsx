@@ -7,9 +7,9 @@ import { cn } from "@/lib/utils";
 export default function NavigationMenu() {
   const pathname = usePathname();
 
-  // Content browsing items (public discovery + personal collection)
+  // Every section is scoped to the signed-in user's profile.
   const navItems = [
-    { label: "Top 100", href: "/" },
+    { label: "My Feed", href: "/" },
     { label: "Favorites", href: "/favorites" },
     { label: "Collections", href: "/collections" },
     { label: "Recent", href: "/recent" },

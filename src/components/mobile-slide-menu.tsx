@@ -55,7 +55,7 @@ export default function MobileSlideMenu({
       icon: Sparkles,
     },
     {
-      label: "Top 100",
+      label: "My Feed",
       href: "/",
       icon: TrendingUp,
     },
