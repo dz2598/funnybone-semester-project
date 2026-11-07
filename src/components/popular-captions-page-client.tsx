@@ -454,7 +454,7 @@ export default function PopularCaptionsPageClient({
           </p>
         </div>
       ) : (
-        <div className="flex gap-6 overflow-x-auto pb-8 snap-x snap-mandatory scrollbar-thin scrollbar-thumb-primary/30">
+        <div className="grid grid-cols-1 gap-6 pb-8 md:grid-cols-2 xl:grid-cols-3">
           {visibleCaptions.map((caption, index) => {
             // generate our thumbnail urls
             const info = parseImageUrl(caption.image_url);
@@ -476,7 +476,7 @@ export default function PopularCaptionsPageClient({
             return (
               <div
                 key={caption.id}
-                className="relative cursor-pointer group w-[84vw] min-w-[84vw] sm:w-[360px] sm:min-w-[360px] snap-start flex"
+                className="relative cursor-pointer group flex min-w-0"
                 onClick={() => handleImageClick(index)}
               >
                 <div
