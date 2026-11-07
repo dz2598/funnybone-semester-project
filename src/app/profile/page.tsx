@@ -3,11 +3,7 @@
 import React, { useEffect, useState } from "react";
 import {
   fetchUserProfileAction,
-  fetchUserEmailAction,
   updateUserProfileAction,
-  fetchDormsAction,
-  fetchUserDormAction,
-  updateUserDormAction,
 } from "@/app/actions/profile";
 import {
   deleteAccountAction,
@@ -37,7 +33,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Eye, EyeOff } from "lucide-react";
-import { fetchUserProviderTypeAction } from "../actions/profile/fetch-user-provider-type";
 
 interface UserProfile {
   id: string;
@@ -74,33 +69,20 @@ export default function ProfilePage() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const [profile, userEmail, userProviderType] = await Promise.all([
-          fetchUserProfileAction(),
-          fetchUserEmailAction(),
-          fetchUserProviderTypeAction(),
-        ]);
-
-        // Dorm data is optional in the shared Humor Project database. A
-        // missing table or policy must not prevent the profile from opening.
-        const [dormsResult, userDormResult] = await Promise.allSettled([
-          fetchDormsAction(),
-          fetchUserDormAction(),
-        ]);
-        const dormsList = dormsResult.status === "fulfilled" ? dormsResult.value : [];
-        const userDormId = userDormResult.status === "fulfilled" ? userDormResult.value : null;
+        const profile = await fetchUserProfileAction();
 
         // Combine profile data with email
         const profileWithEmail = {
           ...profile,
-          email: userEmail ?? "",
+          email: profile.email,
         };
         setUserProfile(profileWithEmail);
         setFirstName(profile.first_name || "");
         setLastName(profile.last_name || "");
-        setDormId(userDormId ? String(userDormId) : "");
-        setDorms(dormsList);
-        setEmail(userEmail ?? "");
-        setHasPassword(userProviderType === "email");
+        setDormId("");
+        setDorms([]);
+        setEmail(profile.email);
+        setHasPassword(profile.provider === "email");
       } catch (error) {
         console.error("Error fetching profile:", error);
         setLoadError("We could not load your Humor Project profile. Please sign in again.");
@@ -124,21 +106,6 @@ export default function ProfilePage() {
       // Update user profile info
       const updatedProfile = await updateUserProfileAction(firstName, lastName);
       setUserProfile(updatedProfile);
-
-      // Only update dorm data when that optional feature exists.
-      if (dorms.length > 0) {
-        try {
-          await updateUserDormAction(dormId || null);
-        } catch (dormError) {
-          console.error("Error updating dorm:", dormError);
-          toast({
-            title: "Error",
-            description: "Failed to update dorm. Please try again.",
-            variant: "destructive",
-          });
-          return;
-        }
-      }
 
       // If email is modified, update it using Supabase Auth
       if (userProfile && email !== userProfile.email) {
