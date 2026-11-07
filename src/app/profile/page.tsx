@@ -61,7 +61,8 @@ export default function ProfilePage() {
   const [dorms, setDorms] = useState<Dorm[]>([]);
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [editing, setEditing] = useState<boolean>(false);
   // State to toggle password visibility
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -73,11 +74,20 @@ export default function ProfilePage() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const profile = await fetchUserProfileAction();
-        const userEmail = await fetchUserEmailAction();
-        const userProviderType = await fetchUserProviderTypeAction();
-        const dormsList = await fetchDormsAction();
-        const userDormId = await fetchUserDormAction();
+        const [profile, userEmail, userProviderType] = await Promise.all([
+          fetchUserProfileAction(),
+          fetchUserEmailAction(),
+          fetchUserProviderTypeAction(),
+        ]);
+
+        // Dorm data is optional in the shared Humor Project database. A
+        // missing table or policy must not prevent the profile from opening.
+        const [dormsResult, userDormResult] = await Promise.allSettled([
+          fetchDormsAction(),
+          fetchUserDormAction(),
+        ]);
+        const dormsList = dormsResult.status === "fulfilled" ? dormsResult.value : [];
+        const userDormId = userDormResult.status === "fulfilled" ? userDormResult.value : null;
 
         // Combine profile data with email
         const profileWithEmail = {
@@ -93,10 +103,13 @@ export default function ProfilePage() {
         setHasPassword(userProviderType === "email");
       } catch (error) {
         console.error("Error fetching profile:", error);
+        setLoadError("We could not load your Humor Project profile. Please sign in again.");
         toast({
           title: "Error",
           description: "Failed to fetch user profile.",
         });
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -112,18 +125,19 @@ export default function ProfilePage() {
       const updatedProfile = await updateUserProfileAction(firstName, lastName);
       setUserProfile(updatedProfile);
 
-      // Update dorm mapping
-      try {
-        await updateUserDormAction(dormId || null);
-        // Update the original dorm ID to the new value after successful save
-      } catch (dormError) {
-        console.error("Error updating dorm:", dormError);
-        toast({
-          title: "Error",
-          description: "Failed to update dorm. Please try again.",
-          variant: "destructive",
-        });
-        return;
+      // Only update dorm data when that optional feature exists.
+      if (dorms.length > 0) {
+        try {
+          await updateUserDormAction(dormId || null);
+        } catch (dormError) {
+          console.error("Error updating dorm:", dormError);
+          toast({
+            title: "Error",
+            description: "Failed to update dorm. Please try again.",
+            variant: "destructive",
+          });
+          return;
+        }
       }
 
       // If email is modified, update it using Supabase Auth
@@ -217,10 +231,26 @@ export default function ProfilePage() {
     }
   };
 
-  if (loading || userProfile === null) {
+  if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
         <Spinner size="xl" />
+      </div>
+    );
+  }
+
+  if (loadError || userProfile === null) {
+    return (
+      <div className="mx-auto mt-16 max-w-xl px-4">
+        <div className="terminal-panel p-6 text-center">
+          <p className="text-primary text-sm tracking-[0.18em]">[ PROFILE_UNAVAILABLE ]</p>
+          <p className="mt-4 text-foreground">
+            {loadError ?? "We could not load your profile."}
+          </p>
+          <Button asChild className="mt-6">
+            <a href="/login">Sign in again</a>
+          </Button>
+        </div>
       </div>
     );
   }
@@ -257,7 +287,7 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          <div className="space-y-2">
+          {dorms.length > 0 && <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
               id="email"
@@ -266,7 +296,7 @@ export default function ProfilePage() {
               onFocus={() => setEditing(true)}
               onChange={(e) => setEmail(e.target.value)}
             />
-          </div>
+          </div>}
 
           <div className="space-y-2">
             <Label htmlFor="dorm">Dorm</Label>
