@@ -30,5 +30,9 @@ export const fetchUserProfileAction = async () => {
     modified_datetime_utc: user.updated_at ?? user.created_at,
     email: user.email ?? "",
     provider: String(user.app_metadata?.provider ?? ""),
+    dorm: String(metadata.dorm ?? ""),
+    school: String(metadata.school ?? ""),
+    major: String(metadata.major ?? ""),
+    class_year: String(metadata.class_year ?? ""),
   };
 };

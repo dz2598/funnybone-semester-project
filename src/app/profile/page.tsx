@@ -41,19 +41,33 @@ interface UserProfile {
   email: string;
   created_datetime_utc: string;
   modified_datetime_utc: string;
+  dorm: string;
+  school: string;
+  major: string;
+  class_year: string;
 }
 
-interface Dorm {
-  id: string;
-  short_name: string;
-}
+const dormOptions = [
+  "Carman", "Furnald", "Hartley", "John Jay", "McBain", "Schapiro",
+  "Wallach", "Wien", "East Campus", "Broadway", "Nussbaum", "River",
+  "Ruggles", "Woodbridge", "Off Campus / Other",
+];
+
+const schoolOptions = [
+  "Columbia College", "Columbia Engineering", "School of General Studies",
+  "Barnard College", "Graduate School", "Other",
+];
+
+const classYearOptions = ["First Year", "Sophomore", "Junior", "Senior", "Graduate Student", "Alumni"];
 
 export default function ProfilePage() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
-  const [dormId, setDormId] = useState<string>("");
-  const [dorms, setDorms] = useState<Dorm[]>([]);
+  const [dorm, setDorm] = useState<string>("");
+  const [school, setSchool] = useState<string>("");
+  const [major, setMajor] = useState<string>("");
+  const [classYear, setClassYear] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
@@ -79,8 +93,10 @@ export default function ProfilePage() {
         setUserProfile(profileWithEmail);
         setFirstName(profile.first_name || "");
         setLastName(profile.last_name || "");
-        setDormId("");
-        setDorms([]);
+        setDorm(profile.dorm);
+        setSchool(profile.school);
+        setMajor(profile.major);
+        setClassYear(profile.class_year);
         setEmail(profile.email);
         setHasPassword(profile.provider === "email");
       } catch (error) {
@@ -104,7 +120,14 @@ export default function ProfilePage() {
 
     try {
       // Update user profile info
-      const updatedProfile = await updateUserProfileAction(firstName, lastName);
+      const updatedProfile = await updateUserProfileAction(
+        firstName,
+        lastName,
+        dorm,
+        school,
+        major,
+        classYear
+      );
       setUserProfile(updatedProfile);
 
       // If email is modified, update it using Supabase Auth
@@ -254,38 +277,59 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {dorms.length > 0 && <div className="space-y-2">
+          <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
               id="email"
               type="email"
               value={email}
-              onFocus={() => setEditing(true)}
-              onChange={(e) => setEmail(e.target.value)}
+              readOnly
+              className="opacity-70"
             />
-          </div>}
+            <p className="text-xs text-muted-foreground">Managed by your Humor Project account.</p>
+          </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="dorm">Dorm</Label>
-            <Select
-              value={dormId || ""}
-              onValueChange={(value) => {
-                setDormId(value);
-                setEditing(true);
-              }}
-            >
-              <SelectTrigger id="dorm">
-                <SelectValue placeholder="Select your dorm" />
-              </SelectTrigger>
-              <SelectContent position="popper" side="bottom" align="start" 
-              className="max-h-[200px] overflow-y-auto">
-                {dorms.map((dorm) => (
-                  <SelectItem key={dorm.id} value={String(dorm.id)}>
-                    {dorm.short_name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="dorm">Dorm</Label>
+              <Select value={dorm} onValueChange={(value) => { setDorm(value); setEditing(true); }}>
+                <SelectTrigger id="dorm"><SelectValue placeholder="Select your dorm" /></SelectTrigger>
+                <SelectContent className="max-h-[240px]">
+                  {dormOptions.map((option) => <SelectItem key={option} value={option}>{option}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="school">School</Label>
+              <Select value={school} onValueChange={(value) => { setSchool(value); setEditing(true); }}>
+                <SelectTrigger id="school"><SelectValue placeholder="Select your school" /></SelectTrigger>
+                <SelectContent>
+                  {schoolOptions.map((option) => <SelectItem key={option} value={option}>{option}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="major">Major</Label>
+              <Input
+                id="major"
+                value={major}
+                placeholder="e.g. Computer Science"
+                onFocus={() => setEditing(true)}
+                onChange={(event) => setMajor(event.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="classYear">Class Year</Label>
+              <Select value={classYear} onValueChange={(value) => { setClassYear(value); setEditing(true); }}>
+                <SelectTrigger id="classYear"><SelectValue placeholder="Select your year" /></SelectTrigger>
+                <SelectContent>
+                  {classYearOptions.map((option) => <SelectItem key={option} value={option}>{option}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           {hasPassword && <div className="space-y-2">

@@ -4,7 +4,11 @@ import { createAuthClient } from "@/utils/supabase/auth-server";
 
 export const updateUserProfileAction = async (
   firstName: string,
-  lastName: string
+  lastName: string,
+  dorm: string,
+  school: string,
+  major: string,
+  classYear: string
 ) => {
   const supabase = await createAuthClient();
 
@@ -21,6 +25,10 @@ export const updateUserProfileAction = async (
       first_name: firstName,
       last_name: lastName,
       full_name: `${firstName} ${lastName}`.trim(),
+      dorm,
+      school,
+      major,
+      class_year: classYear,
     },
   });
 
@@ -35,5 +43,9 @@ export const updateUserProfileAction = async (
     email: user.email ?? "",
     created_datetime_utc: user.created_at,
     modified_datetime_utc: new Date().toISOString(),
+    dorm,
+    school,
+    major,
+    class_year: classYear,
   };
 };
