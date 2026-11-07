@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { FolderPlus, Pencil, Trash2 } from "lucide-react";
+import { checkAuthStatusAction } from "@/app/actions/auth/check-auth-status";
 import {
   createCollectionAction,
   deleteCollectionAction,
@@ -21,6 +23,7 @@ export default function CollectionsPage() {
   const [captions, setCaptions] = useState<LibraryCaption[]>([]);
   const [captionsLoading, setCaptionsLoading] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [signedIn, setSignedIn] = useState<boolean | null>(null);
   const [creating, setCreating] = useState(false);
   const [newName, setNewName] = useState("");
   const [renaming, setRenaming] = useState<MemeCollection | null>(null);
@@ -35,7 +38,12 @@ export default function CollectionsPage() {
   };
 
   useEffect(() => {
-    refresh().catch((error) => toast({ title: "Could not load collections", description: error.message }))
+    checkAuthStatusAction().then((auth) => {
+      const active = auth.isAuthenticated && !auth.isAnonymous;
+      setSignedIn(active);
+      if (!active) return;
+      return refresh();
+    }).catch((error) => toast({ title: "Could not load collections", description: error.message }))
       .finally(() => setLoading(false));
   }, []);
 
@@ -82,6 +90,10 @@ export default function CollectionsPage() {
     setCaptions((items) => items.filter((item) => item.id !== captionId));
     await refresh();
   };
+
+  if (signedIn === false) {
+    return <div className="py-20 text-center"><h1 className="text-3xl font-bold">Your collections</h1><p className="mt-3 text-muted-foreground">Log in to create collections and organize your favorite captions.</p><Link href="/login" className="mt-6 inline-flex rounded-lg bg-primary px-5 py-2.5 text-primary-foreground">Log in</Link></div>;
+  }
 
   return (
     <div className="py-8 space-y-8">
