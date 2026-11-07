@@ -34,7 +34,7 @@ declare
   meme_count integer;
   vote_count integer;
 begin
-  if encode(digest(coalesce(p_secret, ''), 'sha256'), 'hex') <> expected_hash then
+  if encode(extensions.digest(convert_to(coalesce(p_secret, ''), 'UTF8'), 'sha256'), 'hex') <> expected_hash then
     raise exception 'Unauthorized Campus LOL sync';
   end if;
 
