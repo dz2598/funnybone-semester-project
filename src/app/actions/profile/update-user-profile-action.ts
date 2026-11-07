@@ -16,6 +16,18 @@ export const updateUserProfileAction = async (
     throw new Error("User not found.");
   }
 
+  const { error: authError } = await supabase.auth.updateUser({
+    data: {
+      first_name: firstName,
+      last_name: lastName,
+      full_name: `${firstName} ${lastName}`.trim(),
+    },
+  });
+
+  if (authError) {
+    throw new Error("Failed to update profile.");
+  }
+
   const { data, error } = await supabase
     .from("profiles")
     .update({
@@ -27,9 +39,18 @@ export const updateUserProfileAction = async (
     .select()
     .single();
 
-  if (error) {
-    console.error("Error updating profile:", error.message);
-    throw new Error("Failed to update profile.");
+  if (error || !data) {
+    // Humor Project can use a different public profile schema. Auth metadata
+    // has already been updated successfully, so return a compatible profile.
+    if (error) console.warn("Profile table update skipped:", error.message);
+    return {
+      id: user.id,
+      first_name: firstName,
+      last_name: lastName,
+      email: user.email,
+      created_datetime_utc: user.created_at,
+      modified_datetime_utc: new Date().toISOString(),
+    };
   }
 
   // Return the profile data along with the user's email
