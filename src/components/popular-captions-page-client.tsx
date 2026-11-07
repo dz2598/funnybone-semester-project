@@ -5,9 +5,6 @@ import { fetchPopularCaptionsAction } from "@/app/actions/captions/fetch-popular
 import {
   toggleCaptionVoteAction,
   fetchUserCaptionVotesAction,
-  insertSaveAction,
-  deleteSaveAction,
-  fetchSavedCaptionsAction,
 } from "@/app/actions/captions";
 import { useToast } from "@/hooks/use-toast";
 import ShareModal from "@/components/share-modal";
@@ -27,7 +24,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { CaptionModal } from "@/components/ui/caption-modal";
-import { BookmarkButton } from "@/components/ui/bookmark-button";
 import { Top100CaptionImage } from "@/components/top-100-caption-image";
 
 // functions to load in our pregenrated thumbnails
@@ -140,8 +136,6 @@ export default function PopularCaptionsPageClient({
           const votes = await fetchUserCaptionVotesAction(captionIds);
           console.log("Fetched user votes:", votes); // Debug log
           setUserVotes(votes);
-          const saved = await fetchSavedCaptionsAction();
-          setSavedCaptions(saved.map((caption) => caption.id));
         } else {
           // Clear votes if not authenticated
           setUserVotes({});
@@ -160,25 +154,6 @@ export default function PopularCaptionsPageClient({
 
     fetchData();
   }, [toast, filter]);
-
-  useEffect(() => {
-    const fetchSavedCaptions = async () => {
-      if (!isAuthenticated) {
-        setSavedCaptions([]);
-        return;
-      }
-
-      try {
-        const saved = await fetchSavedCaptionsAction();
-        setSavedCaptions(saved.map((caption) => caption.id));
-      } catch (error) {
-        console.error("Error fetching saved captions:", error);
-        setSavedCaptions([]);
-      }
-    };
-
-    fetchSavedCaptions();
-  }, [isAuthenticated]);
 
   const handleVote = async (captionId: string, voteValue: 1 | -1) => {
     if (!isAuthenticated) {
@@ -249,33 +224,6 @@ export default function PopularCaptionsPageClient({
       toast({
         title: "Error",
         description: "Failed to update vote",
-      });
-    }
-  };
-
-  const handleSlideSave = async (captionId: string) => {
-    if (!isAuthenticated) {
-      setShowLoginPrompt(true);
-      return;
-    }
-
-    const originalState = savedCaptions;
-    const isSaved = savedCaptions.includes(captionId);
-
-    try {
-      if (isSaved) {
-        setSavedCaptions((prev) => prev.filter((id) => id !== captionId));
-        await deleteSaveAction(captionId);
-      } else {
-        setSavedCaptions((prev) => [...prev, captionId]);
-        await insertSaveAction(captionId);
-      }
-    } catch (error) {
-      console.error("Error saving/unsaving caption:", error);
-      setSavedCaptions(originalState);
-      toast({
-        title: "Error",
-        description: "Failed to update favorite.",
       });
     }
   };
@@ -637,18 +585,7 @@ export default function PopularCaptionsPageClient({
                                dark:border-white/10"
                   >
                     <div className="flex items-center justify-between">
-                      <div
-                        className="p-2 text-gray-600 dark:text-white hover:bg-gray-200/70
-                                    dark:hover:bg-white/10 rounded transition-colors flex
-                                    items-center justify-center"
-                        onClick={(event) => event.stopPropagation()}
-                      >
-                        <BookmarkButton
-                          bookmarked={savedCaptions.includes(caption.id)}
-                          onClick={() => handleSlideSave(caption.id)}
-                          size={20}
-                        />
-                      </div>
+                      <span className="text-xs text-muted-foreground">Humor Project</span>
                       <div
                         className="p-2 hover:bg-gray-200/70 dark:hover:bg-white/10 rounded
                                     transition-colors flex items-center justify-center"
@@ -691,23 +628,11 @@ export default function PopularCaptionsPageClient({
           onClose={handleCloseCarousel}
           onIndexChange={(index) => setSelectedIndex(index)}
           savedCaptionIds={savedCaptions}
-          onSave={handleSlideSave}
+          onSave={() => undefined}
           wrapNavigation
         />
       )}
       
-      {/* New Post button */}
-      <div className="fixed bottom-16 left-1/2 -translate-x-1/2 z-40">
-        <a
-          href="/new"
-          className="flex items-center justify-center w-48 h-12 rounded-full
-                    bg-primary text-primary-foreground font-bold text-lg shadow-lg
-                    hover:bg-primary/90 transition-colors duration-200
-                    select-none"
-        >
-          New Post
-        </a>
-      </div>
       {/* Login Prompt Modal */}
       <LoginPromptModal
         open={showLoginPrompt}

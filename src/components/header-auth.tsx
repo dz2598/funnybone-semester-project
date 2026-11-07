@@ -4,15 +4,13 @@ import { Button } from "./ui/button";
 import { UserHeaderMenu } from "./user-header-menu";
 
 export default function AuthButton({ user }: { user: User | null }) {
-  // No user - show login/signup
+  // Funnybone uses the existing Humor Project account; it does not create a
+  // second account in this app.
   if (!user) {
     return (
       <div className="flex gap-2">
         <Button asChild size="sm" variant={"outline"}>
           <Link href="/login">Login</Link>
-        </Button>
-        <Button asChild size="sm" variant={"default"}>
-          <Link href="/sign-up">Sign up</Link>
         </Button>
       </div>
     );
@@ -24,9 +22,6 @@ export default function AuthButton({ user }: { user: User | null }) {
       <div className="flex gap-2">
         <Button asChild size="sm" variant={"outline"}>
           <Link href="/login">Login</Link>
-        </Button>
-        <Button asChild size="sm" variant={"default"}>
-          <Link href="/sign-up">Sign up</Link>
         </Button>
       </div>
     );

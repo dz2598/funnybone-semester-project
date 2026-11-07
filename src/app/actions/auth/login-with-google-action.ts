@@ -3,10 +3,10 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
-import { createClient } from "@/utils/supabase/server";
+import { createAuthClient } from "@/utils/supabase/auth-server";
 
 export const signInWithGoogleAction = async () => {
-  const supabase = await createClient();
+  const supabase = await createAuthClient();
   const origin = (await headers()).get("origin");
 
   // Explicitly set the redirect URL to the auth callback endpoint

@@ -1,85 +1,44 @@
 "use server";
 
-import { createClient } from "@/utils/supabase/server";
+import { createAuthClient } from "@/utils/supabase/auth-server";
 
-/**
- * Record or remove a vote for a caption
- * @param captionId - The caption ID to vote on
- * @param voteValue - 1 for upvote, -1 for downvote
- * @returns The inserted vote record
- */
 export const toggleCaptionVoteAction = async (
   captionId: string,
   voteValue: 1 | -1
 ) => {
-  const supabase = await createClient();
+  const memeId = Number(captionId);
+  if (!Number.isSafeInteger(memeId)) throw new Error("Invalid meme ID");
+
+  const supabase = await createAuthClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  
-  if (!user) {
-    throw new Error("User not found.");
-  }
+  if (!user) throw new Error("Please log in first.");
 
-  // Find the user's most recent vote to determine toggle behavior
-  const { data: latestVote, error: latestVoteError } = await supabase
-    .from("caption_votes")
-    .select("vote_value, created_datetime_utc")
-    .eq("caption_id", captionId)
-    .eq("profile_id", user.id)
-    .order("created_datetime_utc", { ascending: false })
+  const { data: existing, error: readError } = await supabase
+    .from("votes")
+    .select("id, vote_value")
+    .eq("meme_id", memeId)
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle();
-
-  if (latestVoteError) {
-    throw latestVoteError;
-  }
-
-  const latestVoteValue = Number(latestVote?.vote_value);
-  const currentVote =
-    latestVoteValue === 1 || latestVoteValue === -1
-      ? (latestVoteValue as 1 | -1)
-      : null;
-
-  if (currentVote === voteValue) {
-    const { error: deleteError } = await supabase
-      .from("caption_votes")
-      .delete()
-      .eq("caption_id", captionId)
-      .eq("profile_id", user.id);
-
-    if (deleteError) {
-      throw deleteError;
-    }
-
-    return null;
-  }
+  if (readError) throw readError;
 
   const { error: deleteError } = await supabase
-    .from("caption_votes")
+    .from("votes")
     .delete()
-    .eq("caption_id", captionId)
-    .eq("profile_id", user.id);
+    .eq("meme_id", memeId)
+    .eq("user_id", user.id);
+  if (deleteError) throw deleteError;
 
-  if (deleteError) {
-    throw deleteError;
-  }
+  if (Number(existing?.vote_value) === voteValue) return null;
 
-  // Insert new vote row
   const { data, error } = await supabase
-    .from("caption_votes")
-    .insert({
-      caption_id: captionId,
-      profile_id: user.id,
-      vote_value: voteValue,
-      created_by_user_id: user.id,
-      modified_by_user_id: user.id,
-    })
+    .from("votes")
+    .insert({ meme_id: memeId, user_id: user.id, vote_value: voteValue })
     .select()
     .single();
-
-  if (error) {
-    throw error;
-  }
+  if (error) throw error;
   return data;
 };

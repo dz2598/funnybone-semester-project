@@ -1,9 +1,9 @@
 "use server";
 
-import { createClient } from "@/utils/supabase/server";
+import { createAuthClient } from "@/utils/supabase/auth-server";
 
 export async function checkAuthStatusAction() {
-  const supabase = await createClient();
+  const supabase = await createAuthClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

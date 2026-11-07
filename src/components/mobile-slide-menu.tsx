@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { X, Menu, Sparkles, TrendingUp, Heart, Image as ImageIcon, FolderOpen, History } from "lucide-react";
+import { X, Menu, TrendingUp } from "lucide-react";
 import { UserHeaderMenu } from "./user-header-menu";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -50,39 +50,13 @@ export default function MobileSlideMenu({
 
   const navItems = [
     {
-      label: "New",
-      href: "/new",
-      icon: Sparkles,
-    },
-    {
       label: "My Feed",
       href: "/",
       icon: TrendingUp,
     },
-    {
-      label: "Favorites",
-      href: "/favorites",
-      icon: Heart,
-    },
-    {
-      label: "Collections",
-      href: "/collections",
-      icon: FolderOpen,
-    },
-    {
-      label: "Recent",
-      href: "/recent",
-      icon: History,
-    },
   ];
 
-  const accountItems = [
-    {
-      label: "Images",
-      href: "/my-images",
-      icon: ImageIcon,
-    },
-  ];
+  const accountItems: Array<{ label: string; href: string; icon: typeof TrendingUp }> = [];
 
   return (
     <div className="sm:hidden flex items-center">

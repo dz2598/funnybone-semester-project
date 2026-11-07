@@ -5,7 +5,7 @@ import Link from "next/link";
 import HeaderAuth from "@/components/header-auth";
 import NavigationMenu from "@/components/navigation-menu";
 import { Toaster } from "@/components/ui/toaster";
-import { createClient } from "@/utils/supabase/server";
+import { createAuthClient } from "@/utils/supabase/auth-server";
 import { BugReportDialog } from "@/components/bug-report-dialog";
 import { ThemeAwareLogo } from "@/components/theme-aware-logo";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -61,7 +61,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const supabase = await createClient();
+  const supabase = await createAuthClient();
 
   // Get the current authenticated user from Supabase using your custom client
   const {

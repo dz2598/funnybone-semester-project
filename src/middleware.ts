@@ -11,11 +11,18 @@ export async function middleware(request: NextRequest) {
   }
 
   const response = NextResponse.next();
+  const authUrl = process.env.CAMPUS_LOL_SUPABASE_URL;
+  const authKey = process.env.CAMPUS_LOL_SUPABASE_PUBLISHABLE_KEY;
+
+  if (!authUrl || !authKey) {
+    return response;
+  }
+
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    authUrl,
+    authKey,
     {
-      cookieOptions: getSupabaseAuthCookieOptions(process.env.NEXT_PUBLIC_SUPABASE_URL!),
+      cookieOptions: getSupabaseAuthCookieOptions(authUrl),
       cookies: {
         getAll() {
           return request.cookies.getAll().map((cookie) => ({

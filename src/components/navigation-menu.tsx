@@ -10,10 +10,6 @@ export default function NavigationMenu() {
   // Every section is scoped to the signed-in user's profile.
   const navItems = [
     { label: "My Feed", href: "/" },
-    { label: "Favorites", href: "/favorites" },
-    { label: "Collections", href: "/collections" },
-    { label: "Recent", href: "/recent" },
-    { label: "Images", href: "/my-images" },
   ];
 
   return (
