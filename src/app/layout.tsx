@@ -30,7 +30,7 @@ const faviconIcons = isProduction
     ];
 const supportEmail = process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "support@crackd.ai";
 const instagramUrl = process.env.NEXT_PUBLIC_INSTAGRAM || "https://www.instagram.com/crackd.ai/";
-const brandName = appEnvironment === "staging" ? "AlmostCrackd.ai" : "Crackd.ai";
+const brandName = "Campus LOL — My Memes";
 const metadataImage = isProduction
   ? `${defaultUrl}/crack-dark.svg`
   : `${defaultUrl}/crack-dark-nonprod.svg`;
@@ -39,7 +39,7 @@ export const metadata = {
   metadataBase,
   title: brandName,
   image: metadataImage,
-  description: "Where your pictures get a sense of humor.",
+  description: "Your personal Campus LOL meme archive.",
   icons: {
     icon: faviconIcons
   },
@@ -90,7 +90,7 @@ export default async function RootLayout({
           <ThemeFavicon />
           <main className="min-h-screen flex flex-col items-center">
             <div className="w-full flex flex-col gap-4">
-              <nav className="w-full flex justify-center border-b border-b-foreground/10 h-24">
+              <nav className="w-full flex justify-center border-b border-primary/20 h-20 bg-background/90 backdrop-blur">
                 <div
                   className="w-full max-w-6xl flex justify-between items-center p-3
                                 px-5 text-sm"

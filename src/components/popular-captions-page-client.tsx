@@ -16,7 +16,6 @@ import { checkAuthStatusAction } from "@/app/actions/auth/check-auth-status";
 import Link from "next/link";
 import { ChevronUp, ChevronDown } from "lucide-react";
 import { buildCaptionShareUrl } from "@/utils/site-url";
-import { BrandImage } from "@/components/brand-image";
 import {
   Tooltip,
   TooltipContent,
@@ -322,33 +321,27 @@ export default function PopularCaptionsPageClient({
 
   return (
     <div className="container mx-auto px-1 py-1">
-      {/* Mobile-only Get Crackd Box */}
-      <div className="block sm:hidden w-full mb-8">
-        <div
-          className="bg-gray-50 dark:bg-neutral-800 rounded-2xl p-8 flex
-                      flex-col items-center justify-center"
-        >
-          <div className="relative w-24 h-24 mb-4">
-            <BrandImage variant="mark" alt="Crackd Logo" className="w-full h-full" />
-          </div>
-          <h2
-            className="text-gray-900 dark:text-white text-4xl font-bold
-                        tracking-tight scale-y-150"
-          >
-            MY MEMES
-          </h2>
-        </div>
+      <div className="terminal-panel w-full mb-8 p-5 sm:p-8">
+        <p className="text-xs sm:text-sm tracking-[0.22em] text-primary">
+          $ ls /users/current/memes
+        </p>
+        <h1 className="mt-3 text-3xl sm:text-5xl font-bold tracking-tight text-foreground">
+          &gt; MY_MEMES/
+        </h1>
+        <p className="mt-3 text-xs sm:text-sm text-muted-foreground">
+          [ PRIVATE_ARCHIVE ] ONLY ITEMS LINKED TO YOUR HUMOR PROJECT ACCOUNT
+        </p>
       </div>
 
       <div className="flex justify-center mb-8 relative" style={{ height: "44px" }}>
         <div
-          className="relative flex justify-between w-full max-w-[470px] h-[36px] sm:h-[44px] 
-                      bg-transparent rounded-3xl mx-auto border border-[#666363] overflow-hidden"
+          className="relative flex justify-between w-full max-w-[620px] h-[36px] sm:h-[44px]
+                      bg-card mx-auto border border-primary/30 overflow-hidden"
         >
           {/* Primary Slider */}
           <div
             className={`absolute top-0 left-0 h-[36px] sm:h-[44px] w-1/4 rounded-[16px] 
-              bg-primary dark:bg-primary/40
+              bg-primary/20
                        transition-all duration-300 ${
                         filter === "week"
                           ? "rounded-l-3xl rounded-r-none"
@@ -373,8 +366,8 @@ export default function PopularCaptionsPageClient({
                           tracking-[-0.02em] z-10 transition-colors 
                           duration-200 ${
                             isActive
-                              ? "text-white dark:text-white border-2 border-primary"
-                              : "text-gray-800 dark:text-[#9A9A9A]"
+                              ? "text-primary border border-primary"
+                              : "text-muted-foreground"
                           } ${
                             key === "week"
                               ? "rounded-l-3xl rounded-r-none"
@@ -408,7 +401,7 @@ export default function PopularCaptionsPageClient({
           {[1, 2, 3].map((i) => (
             <div
               key={i}
-              className="absolute top-0 bottom-0 w-[2px] bg-[#666363]"
+              className="absolute top-0 bottom-0 w-px bg-primary/20"
               style={{ left: `${i * 25}%` }}
             />
           ))}
@@ -461,7 +454,7 @@ export default function PopularCaptionsPageClient({
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="flex gap-6 overflow-x-auto pb-8 snap-x snap-mandatory scrollbar-thin scrollbar-thumb-primary/30">
           {visibleCaptions.map((caption, index) => {
             // generate our thumbnail urls
             const info = parseImageUrl(caption.image_url);
@@ -483,21 +476,20 @@ export default function PopularCaptionsPageClient({
             return (
               <div
                 key={caption.id}
-                className="relative cursor-pointer group w-full h-full flex"
+                className="relative cursor-pointer group w-[84vw] min-w-[84vw] sm:w-[360px] sm:min-w-[360px] snap-start flex"
                 onClick={() => handleImageClick(index)}
               >
                 <div
-                  className="relative bg-white dark:bg-[#1a1a1a] rounded-lg overflow-hidden
-                         shadow-md dark:shadow-lg ring-1 ring-gray-200 dark:ring-0
-                         hover:shadow-xl transition-all duration-300 flex flex-col w-full
-                         sm:max-w-[320px] sm:mx-auto"
+                  className="terminal-panel relative overflow-hidden hover:border-primary/70
+                         transition-all duration-300 flex flex-col w-full"
                 >
                   {/* Top Section - Branding */}
                   <div className="p-3 flex justify-between items-center">
                     {/* Left: Crackd branding */}
                     <div className="flex items-center gap-2">
-                      <BrandImage variant="mark" alt="Crackd" className="w-6 h-6" />
-                      <span className="text-primary text-sm font-bold">Crackd</span>
+                      <span className="text-primary text-xs font-bold tracking-[0.18em]">
+                        [ USER_ARCHIVE ]
+                      </span>
                     </div>
 
                     {/* Right: Upvote/Downvote counter */}
@@ -563,7 +555,7 @@ export default function PopularCaptionsPageClient({
                   {/* Caption Text - Below header */}
                   <div className="px-3 pb-3">
                     <p
-                      className="text-gray-900 dark:text-white text-base leading-relaxed
+                      className="text-foreground text-base leading-relaxed
                                  font-medium"
                     >
                       {caption.content}
@@ -581,11 +573,12 @@ export default function PopularCaptionsPageClient({
 
                   {/* Bottom Action Bar */}
                   <div
-                    className="p-3 bg-gray-50 dark:bg-[#1a1a1a] border-t border-gray-200
-                               dark:border-white/10"
+                    className="p-3 bg-background/70 border-t border-primary/20"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">Humor Project</span>
+                      <span className="text-xs tracking-[0.14em] text-muted-foreground">
+                        CAMPUS_LOL // PRIVATE
+                      </span>
                       <div
                         className="p-2 hover:bg-gray-200/70 dark:hover:bg-white/10 rounded
                                     transition-colors flex items-center justify-center"
