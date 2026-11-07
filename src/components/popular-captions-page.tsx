@@ -24,7 +24,7 @@ interface PopularCaptionsPageProps {
 }
 
 export default async function PopularCaptionsPage({
-  initialFilter = "week",
+  initialFilter = "all",
   pastWeekHref,
   pastMonthHref,
   pastYearHref,

@@ -84,7 +84,7 @@ const filterOptions: Array<{ key: PopularCaptionsFilter; label: string }> = [
 ];
 
 export default function PopularCaptionsPageClient({
-  initialFilter = "week",
+  initialFilter = "all",
   pastWeekHref,
   pastMonthHref,
   pastYearHref,
