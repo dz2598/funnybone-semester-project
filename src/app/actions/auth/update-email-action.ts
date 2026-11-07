@@ -1,9 +1,9 @@
 "use server";
 
-import { createClient } from "@/utils/supabase/server";
+import { createAuthClient } from "@/utils/supabase/auth-server";
 
 export const updateEmailAction = async (newEmail: string) => {
-  const supabase = await createClient();
+  const supabase = await createAuthClient();
 
   // Fetch the current authenticated user
   const {
