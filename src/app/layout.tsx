@@ -120,7 +120,7 @@ export default async function RootLayout({
             </div>
 
             {/* Footer */}
-            <footer className="w-full py-14 mt-8">
+            <footer className="hidden">
               {/* Full-width Divider */}
               <div className="w-full h-[1px] bg-muted-foreground/10 my-8" />
               <div className="max-w-6xl mx-auto px-8">
