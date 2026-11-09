@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FolderOpen, History } from "lucide-react";
+import { History } from "lucide-react";
 import type { LibraryCaption } from "@/app/actions/library";
 
 export function LibraryCaptionGrid({

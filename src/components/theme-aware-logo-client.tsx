@@ -4,11 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 
-interface ThemeAwareLogoClientProps {
-  isAuthenticated: boolean;
-}
-
-export function ThemeAwareLogoClient({ isAuthenticated }: ThemeAwareLogoClientProps) {
+export function ThemeAwareLogoClient() {
   const [mounted, setMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   usePathname();
