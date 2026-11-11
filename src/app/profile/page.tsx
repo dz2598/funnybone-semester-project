@@ -82,6 +82,16 @@ export default function ProfilePage() {
   const [hasPassword, setHasPassword] = useState<boolean>(true);
   const [showDeleteDialog, setShowDeleteDialog] = useState<boolean>(false);
 
+  const hasUnsavedChanges = userProfile !== null && (
+    firstName !== (userProfile.first_name ?? "") ||
+    lastName !== (userProfile.last_name ?? "") ||
+    dorm !== userProfile.dorm ||
+    school !== userProfile.school ||
+    major !== userProfile.major ||
+    classYear !== userProfile.class_year ||
+    password.length > 0
+  );
+
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -388,17 +398,17 @@ export default function ProfilePage() {
             )}
           </div>}
 
-          <div className="flex flex-col sm:flex-row gap-4 pt-1">
-              <>
-                <SubmitButton
-                  disabled={loading}
-                  pendingText="Saving..."
-                  className="w-full"
-                >
-                  Save
-                </SubmitButton>
-              </>
-          </div>
+          {hasUnsavedChanges && (
+            <div className="flex flex-col gap-4 pt-1 sm:flex-row">
+              <SubmitButton
+                disabled={loading}
+                pendingText="Saving..."
+                className="w-full"
+              >
+                Save
+              </SubmitButton>
+            </div>
+          )}
         </form>
 
         <div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-800">
