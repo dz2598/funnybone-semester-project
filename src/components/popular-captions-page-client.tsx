@@ -337,7 +337,14 @@ export default function PopularCaptionsPageClient({
   return (
     <div className="container mx-auto px-1 py-1">
       {profileSummary && (
-        <section className="terminal-panel mb-8 overflow-hidden p-6 sm:p-8">
+        <Link
+          href="/profile"
+          aria-label="Open your profile"
+          className="terminal-panel mb-8 block overflow-hidden p-6 transition-all
+                     hover:border-primary/70 hover:bg-primary/[0.03]
+                     focus-visible:outline-none focus-visible:ring-2
+                     focus-visible:ring-primary sm:p-8"
+        >
           <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-center">
             <div
               className="flex h-28 w-28 shrink-0 items-center justify-center overflow-hidden
@@ -375,7 +382,7 @@ export default function PopularCaptionsPageClient({
               </div>
             </div>
           </div>
-        </section>
+        </Link>
       )}
 
       <div className="terminal-panel w-full mb-8 p-5 sm:p-8">
