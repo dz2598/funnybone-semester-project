@@ -385,18 +385,6 @@ export default function PopularCaptionsPageClient({
         </Link>
       )}
 
-      <div className="terminal-panel w-full mb-8 p-5 sm:p-8">
-        <p className="text-xs sm:text-sm tracking-[0.22em] text-primary">
-          $ ls /users/current/memes
-        </p>
-        <h1 className="mt-3 text-3xl sm:text-5xl font-bold tracking-tight text-foreground">
-          &gt; MY_MEMES/
-        </h1>
-        <p className="mt-3 text-xs sm:text-sm text-muted-foreground">
-          [ PRIVATE_ARCHIVE ] ONLY ITEMS LINKED TO YOUR HUMOR PROJECT ACCOUNT
-        </p>
-      </div>
-
       <div
         className="mx-auto mb-6 grid w-full max-w-2xl grid-cols-2
                    border border-primary/30 bg-card"
