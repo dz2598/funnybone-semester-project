@@ -59,6 +59,8 @@ type PopularCaption = {
   content: string;
   image_url: string;
   like_count: number;
+  upvote_count: number;
+  downvote_count: number;
   is_common_use: boolean;
   created_at: string;
 };
@@ -174,6 +176,8 @@ export default function PopularCaptionsPageClient({
     const currentVote = userVotes[captionId] ?? null;
     const originalVote = currentVote;
     const originalCount = popularCaptions.find((c) => c.id === captionId)?.like_count || 0;
+    const originalUpvotes = popularCaptions.find((c) => c.id === captionId)?.upvote_count || 0;
+    const originalDownvotes = popularCaptions.find((c) => c.id === captionId)?.downvote_count || 0;
 
     // Optimistic update: determine new vote value
     let newVoteValue: 1 | -1 | null;
@@ -209,9 +213,15 @@ export default function PopularCaptionsPageClient({
 
     setPopularCaptions((prev) =>
       prev.map((caption) =>
-        caption.id === captionId
-          ? { ...caption, like_count: caption.like_count + countChange }
-          : caption
+        caption.id === captionId ? {
+          ...caption,
+          like_count: caption.like_count + countChange,
+          upvote_count:
+            caption.upvote_count - (originalVote === 1 ? 1 : 0) + (newVoteValue === 1 ? 1 : 0),
+          downvote_count:
+            caption.downvote_count - (originalVote === -1 ? 1 : 0) +
+            (newVoteValue === -1 ? 1 : 0),
+        } : caption
       )
     );
 
@@ -231,7 +241,12 @@ export default function PopularCaptionsPageClient({
       setPopularCaptions((prev) =>
         prev.map((caption) =>
           caption.id === captionId
-            ? { ...caption, like_count: originalCount }
+            ? {
+              ...caption,
+              like_count: originalCount,
+              upvote_count: originalUpvotes,
+              downvote_count: originalDownvotes,
+            }
             : caption
         )
       );
@@ -582,7 +597,7 @@ export default function PopularCaptionsPageClient({
 
                     {/* Right: Upvote/Downvote counter */}
                     <TooltipProvider>
-                      <div className="flex flex-col items-center gap-0">
+                      <div className="flex flex-col items-end gap-1">
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <button
@@ -590,13 +605,16 @@ export default function PopularCaptionsPageClient({
                                 event.stopPropagation();
                                 handleVote(caption.id, 1);
                               }}
-                              className={`cursor-pointer transition-colors ${
+                              className={`flex cursor-pointer items-center gap-1 transition-colors ${
                                 isUpvoted
                                   ? "text-primary"
                                   : "text-gray-500 dark:text-gray-400 hover:text-primary"
                               }`}
                             >
-                              <ChevronUp className="w-4 h-4" />
+                              <ChevronUp className="h-4 w-4" />
+                              <span className="min-w-4 text-right text-xs">
+                                {caption.upvote_count}
+                              </span>
                             </button>
                           </TooltipTrigger>
                           <TooltipContent
@@ -608,9 +626,6 @@ export default function PopularCaptionsPageClient({
                             <p>Upvote</p>
                           </TooltipContent>
                         </Tooltip>
-                        <span className="text-gray-900 dark:text-white text-sm font-medium">
-                          {caption.like_count}
-                        </span>
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <button
@@ -618,13 +633,16 @@ export default function PopularCaptionsPageClient({
                                 event.stopPropagation();
                                 handleVote(caption.id, -1);
                               }}
-                              className={`cursor-pointer transition-colors ${
+                              className={`flex cursor-pointer items-center gap-1 transition-colors ${
                                 isDownvoted
                                   ? "text-primary"
                                   : "text-gray-500 dark:text-gray-400 hover:text-primary"
                               }`}
                             >
-                              <ChevronDown className="w-4 h-4" />
+                              <ChevronDown className="h-4 w-4" />
+                              <span className="min-w-4 text-right text-xs">
+                                {caption.downvote_count}
+                              </span>
                             </button>
                           </TooltipTrigger>
                           <TooltipContent

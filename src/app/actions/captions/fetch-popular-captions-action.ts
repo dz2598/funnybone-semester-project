@@ -83,8 +83,16 @@ export const fetchPopularCaptionsAction = async (
   }
 
   const totals = new Map<number, number>();
+  const upvoteCounts = new Map<number, number>();
+  const downvoteCounts = new Map<number, number>();
   for (const vote of (voteRows ?? []) as HumorProjectVote[]) {
-    totals.set(vote.meme_id, (totals.get(vote.meme_id) ?? 0) + Number(vote.vote_value));
+    const value = Number(vote.vote_value);
+    totals.set(vote.meme_id, (totals.get(vote.meme_id) ?? 0) + value);
+    if (value === 1) {
+      upvoteCounts.set(vote.meme_id, (upvoteCounts.get(vote.meme_id) ?? 0) + 1);
+    } else if (value === -1) {
+      downvoteCounts.set(vote.meme_id, (downvoteCounts.get(vote.meme_id) ?? 0) + 1);
+    }
   }
 
   return memes.map((meme) => ({
@@ -93,6 +101,8 @@ export const fetchPopularCaptionsAction = async (
     image_id: String(meme.id),
     image_url: meme.image_url,
     like_count: totals.get(meme.id) ?? 0,
+    upvote_count: upvoteCounts.get(meme.id) ?? 0,
+    downvote_count: downvoteCounts.get(meme.id) ?? 0,
     is_common_use: false,
     created_at: meme.created_at,
   }));

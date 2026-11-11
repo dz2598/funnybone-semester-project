@@ -16,6 +16,8 @@ type PopularCaption = {
   content: string;
   image_url: string;
   like_count: number;
+  upvote_count: number;
+  downvote_count: number;
   is_common_use: boolean;
   created_at: string;
 };
