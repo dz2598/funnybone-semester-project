@@ -4,6 +4,10 @@ import { fetchUserCaptionVotesAction } from "@/app/actions/captions";
 import { checkAuthStatusAction } from "@/app/actions/auth/check-auth-status";
 import PopularCaptionsPageClient from "@/components/popular-captions-page-client";
 import { redirect } from "next/navigation";
+import {
+  fetchMyMemeStatsAction,
+  fetchUserProfileAction,
+} from "@/app/actions/profile";
 
 type PopularCaptionsFilter = "all" | "year" | "past30" | "week";
 
@@ -40,11 +44,11 @@ export default async function PopularCaptionsPage({
     redirect("/login");
   }
 
-  const captions = (await fetchPopularCaptionsAction(
-    100,
-    initialFilter,
-    initialSection
-  )) as PopularCaption[];
+  const [captions, profile, stats] = await Promise.all([
+    fetchPopularCaptionsAction(100, initialFilter, initialSection) as Promise<PopularCaption[]>,
+    fetchUserProfileAction(),
+    fetchMyMemeStatsAction(),
+  ]);
 
   let initialUserVotes: Record<string, 1 | -1 | null> = {};
   if (isAuthenticated && captions.length > 0) {
@@ -63,6 +67,12 @@ export default async function PopularCaptionsPage({
       initialUserVotes={initialUserVotes}
       initialIsAuthenticated={isAuthenticated}
       initialSection={initialSection}
+      profileSummary={{
+        name: [profile.first_name, profile.last_name].filter(Boolean).join(" ") || profile.email,
+        avatarUrl: profile.avatar_url,
+        posts: stats.posts,
+        likes: stats.likes,
+      }}
     />
   );
 }

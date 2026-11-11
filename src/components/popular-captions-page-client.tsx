@@ -75,6 +75,12 @@ interface PopularCaptionsPageClientProps {
   initialUserVotes?: Record<string, 1 | -1 | null>;
   initialIsAuthenticated?: boolean;
   initialSection?: MyMemesSection;
+  profileSummary?: {
+    name: string;
+    avatarUrl: string;
+    posts: number;
+    likes: number;
+  };
 }
 
 const filterOptions: Array<{ key: PopularCaptionsFilter; label: string }> = [
@@ -94,6 +100,7 @@ export default function PopularCaptionsPageClient({
   initialUserVotes = {},
   initialIsAuthenticated = false,
   initialSection = "liked",
+  profileSummary,
 }: PopularCaptionsPageClientProps) {
   const [popularCaptions, setPopularCaptions] = useState<PopularCaption[]>(initialCaptions);
   const [userVotes, setUserVotes] = useState<Record<string, 1 | -1 | null>>(initialUserVotes);
@@ -329,6 +336,48 @@ export default function PopularCaptionsPageClient({
 
   return (
     <div className="container mx-auto px-1 py-1">
+      {profileSummary && (
+        <section className="terminal-panel mb-8 overflow-hidden p-6 sm:p-8">
+          <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-center">
+            <div
+              className="flex h-28 w-28 shrink-0 items-center justify-center overflow-hidden
+                         rounded-full border-2 border-primary/50 bg-muted text-3xl font-bold
+                         text-primary shadow-[0_0_28px_rgba(96,201,234,0.12)]"
+            >
+              {profileSummary.avatarUrl ? (
+                <img
+                  src={profileSummary.avatarUrl}
+                  alt={`${profileSummary.name} profile`}
+                  className="h-full w-full object-cover"
+                  referrerPolicy="no-referrer"
+                />
+              ) : (
+                profileSummary.name.slice(0, 1).toUpperCase() || "U"
+              )}
+            </div>
+
+            <div className="flex-1 text-center sm:text-left">
+              <p className="text-xs font-semibold tracking-[0.2em] text-primary">
+                [ USER_PROFILE ]
+              </p>
+              <h1 className="mt-2 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+                {profileSummary.name}
+              </h1>
+              <div className="mt-5 flex justify-center gap-10 sm:justify-start">
+                <div>
+                  <p className="text-2xl font-bold text-foreground">{profileSummary.posts}</p>
+                  <p className="mt-1 text-xs tracking-[0.16em] text-muted-foreground">POSTS</p>
+                </div>
+                <div className="border-l border-primary/25 pl-10">
+                  <p className="text-2xl font-bold text-foreground">{profileSummary.likes}</p>
+                  <p className="mt-1 text-xs tracking-[0.16em] text-muted-foreground">LIKES</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
       <div className="terminal-panel w-full mb-8 p-5 sm:p-8">
         <p className="text-xs sm:text-sm tracking-[0.22em] text-primary">
           $ ls /users/current/memes

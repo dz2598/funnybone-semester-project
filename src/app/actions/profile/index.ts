@@ -5,3 +5,4 @@ export { fetchUserProviderTypeAction } from "./fetch-user-provider-type";
 export { fetchDormsAction } from "./fetch-dorms-action";
 export { fetchUserDormAction } from "./fetch-user-dorm-action";
 export { updateUserDormAction } from "./update-user-dorm-action";
+export { fetchMyMemeStatsAction } from "./fetch-my-meme-stats-action";
