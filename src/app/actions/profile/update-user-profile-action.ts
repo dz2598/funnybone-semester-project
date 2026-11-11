@@ -47,5 +47,11 @@ export const updateUserProfileAction = async (
     school,
     major,
     class_year: classYear,
+    avatar_url: String(
+      user.user_metadata?.avatar_url ??
+      user.user_metadata?.picture ??
+      user.user_metadata?.profile_picture ??
+      ""
+    ).trim(),
   };
 };

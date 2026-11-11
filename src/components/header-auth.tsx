@@ -28,5 +28,10 @@ export default function AuthButton({ user }: { user: User | null }) {
   }
 
   // Authenticated users get the avatar dropdown
-  return <UserHeaderMenu email={user.email || ""} />;
+  const metadata = user.user_metadata ?? {};
+  const avatarUrl = String(
+    metadata.avatar_url ?? metadata.picture ?? metadata.profile_picture ?? ""
+  ).trim();
+
+  return <UserHeaderMenu email={user.email || ""} avatarUrl={avatarUrl} />;
 }

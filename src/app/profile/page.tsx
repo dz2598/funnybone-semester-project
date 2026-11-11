@@ -45,6 +45,7 @@ interface UserProfile {
   school: string;
   major: string;
   class_year: string;
+  avatar_url: string;
 }
 
 const dormOptions = [
@@ -68,6 +69,7 @@ export default function ProfilePage() {
   const [school, setSchool] = useState<string>("");
   const [major, setMajor] = useState<string>("");
   const [classYear, setClassYear] = useState<string>("");
+  const [avatarUrl, setAvatarUrl] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
@@ -97,6 +99,7 @@ export default function ProfilePage() {
         setSchool(profile.school);
         setMajor(profile.major);
         setClassYear(profile.class_year);
+        setAvatarUrl(profile.avatar_url);
         setEmail(profile.email);
         setHasPassword(profile.provider === "email");
       } catch (error) {
@@ -249,9 +252,29 @@ export default function ProfilePage() {
     <div className="w-full pb-8 px-4 md:px-0">
       <div className="max-w-full mx-auto">
         <div className="p-6">
-        <h1 className="text-2xl font-semibold mb-6">
-          {editing ? "Edit Profile" : "Your Profile"}
-        </h1>
+        <div className="mb-8 flex items-center gap-4">
+          <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full border border-primary/40 bg-muted text-xl font-semibold">
+            {avatarUrl ? (
+              <img
+                src={avatarUrl}
+                alt="Your profile"
+                className="h-full w-full object-cover"
+                referrerPolicy="no-referrer"
+                onError={() => setAvatarUrl("")}
+              />
+            ) : (
+              `${firstName[0] ?? ""}${lastName[0] ?? ""}`.toUpperCase() || email[0]?.toUpperCase() || "U"
+            )}
+          </div>
+          <div>
+            <h1 className="text-2xl font-semibold">
+              {editing ? "Edit Profile" : "Your Profile"}
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Synced from your Humor Project account
+            </p>
+          </div>
+        </div>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="flex flex-col sm:flex-row gap-6">
             <div className="space-y-2 flex-1">

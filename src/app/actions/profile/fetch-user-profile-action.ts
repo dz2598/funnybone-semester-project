@@ -19,6 +19,9 @@ export const fetchUserProfileAction = async () => {
   const metadata = user.user_metadata ?? {};
   const fullName = String(metadata.full_name ?? metadata.name ?? "").trim();
   const nameParts = fullName.split(/\s+/).filter(Boolean);
+  const avatarUrl = String(
+    metadata.avatar_url ?? metadata.picture ?? metadata.profile_picture ?? ""
+  ).trim();
 
   return {
     id: user.id,
@@ -34,5 +37,6 @@ export const fetchUserProfileAction = async () => {
     school: String(metadata.school ?? ""),
     major: String(metadata.major ?? ""),
     class_year: String(metadata.class_year ?? ""),
+    avatar_url: avatarUrl,
   };
 };

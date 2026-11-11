@@ -12,12 +12,14 @@ interface MobileSlideMenuProps {
   email: string;
   firstName: string | null;
   lastName: string | null;
+  avatarUrl?: string | null;
 }
 
 export default function MobileSlideMenu({
   email,
   firstName,
   lastName,
+  avatarUrl,
 }: MobileSlideMenuProps) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -197,6 +199,7 @@ export default function MobileSlideMenu({
                     email={email}
                     firstName={firstName}
                     lastName={lastName}
+                    avatarUrl={avatarUrl}
                     showOnMobile
                   />
                   <div className="flex-1 min-w-0">

@@ -2,7 +2,6 @@
 
 import { signOutAction } from "@/app/actions/auth";
 import Link from "next/link";
-import { User } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,12 +25,14 @@ interface UserHeaderMenuProps {
   firstName?: string | null;
   lastName?: string | null;
   showOnMobile?: boolean;
+  avatarUrl?: string | null;
 }
 
-export function UserHeaderMenu({ email, showOnMobile }: UserHeaderMenuProps) {
+export function UserHeaderMenu({ email, showOnMobile, avatarUrl: initialAvatarUrl }: UserHeaderMenuProps) {
   const [mounted, setMounted] = useState(false);
   const [firstName, setFirstName] = useState<string | null>(null);
   const [lastName, setLastName] = useState<string | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string>(initialAvatarUrl ?? "");
   const { theme, setTheme } = useTheme();
 
   useEffect(() => {
@@ -47,6 +48,9 @@ export function UserHeaderMenu({ email, showOnMobile }: UserHeaderMenuProps) {
           }
           if (profile.last_name) {
             setLastName(profile.last_name);
+          }
+          if (profile.avatar_url) {
+            setAvatarUrl(profile.avatar_url);
           }
         }
       } catch (error) {
@@ -71,6 +75,12 @@ export function UserHeaderMenu({ email, showOnMobile }: UserHeaderMenuProps) {
     }
   };
 
+  const initials = () => {
+    const values = [firstName, lastName].filter(Boolean);
+    if (values.length > 0) return values.map((value) => value![0]).join("").toUpperCase();
+    return email.slice(0, 1).toUpperCase() || "U";
+  };
+
   return (
     <>
       <div className={showOnMobile ? "block sm:hidden" : "hidden sm:block"}>
@@ -82,7 +92,17 @@ export function UserHeaderMenu({ email, showOnMobile }: UserHeaderMenuProps) {
                 showOnMobile ? "" : "ml-[-25px]"
               )}
             >
-              <User className="h-6 w-6 text-muted-foreground" />
+              <span className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border border-primary/40 bg-muted text-xs font-semibold text-foreground">
+                {avatarUrl ? (
+                  <img
+                    src={avatarUrl}
+                    alt={`${fullName()} profile`}
+                    className="h-full w-full object-cover"
+                    referrerPolicy="no-referrer"
+                    onError={() => setAvatarUrl("")}
+                  />
+                ) : initials()}
+              </span>
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
@@ -134,7 +154,12 @@ export function UserHeaderMenu({ email, showOnMobile }: UserHeaderMenuProps) {
       </div>
 
       {!showOnMobile && (
-        <MobileSlideMenu email={email} firstName={firstName} lastName={lastName} />
+        <MobileSlideMenu
+          email={email}
+          firstName={firstName}
+          lastName={lastName}
+          avatarUrl={avatarUrl}
+        />
       )}
     </>
   );
