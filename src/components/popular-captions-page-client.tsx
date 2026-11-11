@@ -15,7 +15,7 @@ import { useRouter } from "next/navigation";
 import { LoginPromptModal } from "@/components/ui/login-prompt-modal";
 import { checkAuthStatusAction } from "@/app/actions/auth/check-auth-status";
 import Link from "next/link";
-import { ChevronUp, ChevronDown } from "lucide-react";
+import { ChevronUp, ChevronDown, MessageCircle } from "lucide-react";
 import { buildCaptionShareUrl } from "@/utils/site-url";
 import {
   Tooltip,
@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/tooltip";
 import { CaptionModal } from "@/components/ui/caption-modal";
 import { Top100CaptionImage } from "@/components/top-100-caption-image";
+import { MemeCommentsDialog } from "@/components/meme-comments-dialog";
 
 // functions to load in our pregenrated thumbnails
 const THUMBNAIL_SIZES = [320, 480, 640, 750, 828, 1080, 1200, 1920, 2048, 3840] as const;
@@ -61,6 +62,7 @@ type PopularCaption = {
   like_count: number;
   upvote_count: number;
   downvote_count: number;
+  comment_count: number;
   is_common_use: boolean;
   created_at: string;
 };
@@ -119,6 +121,7 @@ export default function PopularCaptionsPageClient({
   const [savedCaptions, setSavedCaptions] = useState<string[]>([]);
   const isFirstLoad = useRef(true);
   const [section, setSection] = useState<MyMemesSection>(initialSection);
+  const [commentMemeId, setCommentMemeId] = useState<string | null>(null);
 
   const [filter, setFilter] = useState<PopularCaptionsFilter>(initialFilter);
   const filterHrefs: Partial<Record<PopularCaptionsFilter, string>> = {
@@ -682,18 +685,34 @@ export default function PopularCaptionsPageClient({
                     className="p-3 bg-background/70 border-t border-primary/20"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="text-xs tracking-[0.14em] text-muted-foreground">
-                        CAMPUS_LOL // PRIVATE
-                      </span>
-                      <div
-                        className="p-2 hover:bg-gray-200/70 dark:hover:bg-white/10 rounded
-                                    transition-colors flex items-center justify-center"
-                        onClick={(event) => event.stopPropagation()}
+                      <button
+                        type="button"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          setCommentMemeId(caption.id);
+                        }}
+                        className="flex items-center gap-2 rounded-full px-2 py-1 text-sm
+                                   text-muted-foreground transition-colors hover:bg-primary/10
+                                   hover:text-primary"
+                        aria-label={`Open ${caption.comment_count} comments`}
                       >
-                        <ShareModal
-                          shareUrl={shareUrl}
-                          buttonClassName="text-gray-600 dark:text-white"
-                        />
+                        <MessageCircle className="h-4 w-4" />
+                        <span>{caption.comment_count}</span>
+                      </button>
+                      <div className="flex items-center gap-2">
+                        <span className="hidden text-xs tracking-[0.14em] text-muted-foreground sm:inline">
+                          CAMPUS_LOL
+                        </span>
+                        <div
+                          className="p-2 hover:bg-gray-200/70 dark:hover:bg-white/10 rounded
+                                      transition-colors flex items-center justify-center"
+                          onClick={(event) => event.stopPropagation()}
+                        >
+                          <ShareModal
+                            shareUrl={shareUrl}
+                            buttonClassName="text-gray-600 dark:text-white"
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -741,6 +760,25 @@ export default function PopularCaptionsPageClient({
           router.push("/login");
         }}
       />
+      {commentMemeId && (
+        <MemeCommentsDialog
+          memeId={commentMemeId}
+          open
+          onOpenChange={(open) => {
+            if (!open) setCommentMemeId(null);
+          }}
+          initialCount={
+            popularCaptions.find((caption) => caption.id === commentMemeId)?.comment_count ?? 0
+          }
+          onCountChange={(count) => {
+            setPopularCaptions((current) =>
+              current.map((caption) =>
+                caption.id === commentMemeId ? { ...caption, comment_count: count } : caption
+              )
+            );
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -17,6 +17,10 @@ type HumorProjectVote = {
   vote_value: number;
 };
 
+type HumorProjectComment = {
+  meme_id: number;
+};
+
 export const fetchPopularCaptionsAction = async (
   limit = 100,
   period: Period = "all",
@@ -82,6 +86,15 @@ export const fetchPopularCaptionsAction = async (
     console.error("Could not load Humor Project vote totals:", voteError);
   }
 
+  const { data: commentRows, error: commentError } = await supabase
+    .from("meme_comments")
+    .select("meme_id")
+    .in("meme_id", memeIds);
+
+  if (commentError) {
+    console.error("Could not load Humor Project comment totals:", commentError);
+  }
+
   const totals = new Map<number, number>();
   const upvoteCounts = new Map<number, number>();
   const downvoteCounts = new Map<number, number>();
@@ -95,6 +108,11 @@ export const fetchPopularCaptionsAction = async (
     }
   }
 
+  const commentCounts = new Map<number, number>();
+  for (const comment of (commentRows ?? []) as HumorProjectComment[]) {
+    commentCounts.set(comment.meme_id, (commentCounts.get(comment.meme_id) ?? 0) + 1);
+  }
+
   return memes.map((meme) => ({
     id: String(meme.id),
     content: meme.caption ?? "",
@@ -103,6 +121,7 @@ export const fetchPopularCaptionsAction = async (
     like_count: totals.get(meme.id) ?? 0,
     upvote_count: upvoteCounts.get(meme.id) ?? 0,
     downvote_count: downvoteCounts.get(meme.id) ?? 0,
+    comment_count: commentCounts.get(meme.id) ?? 0,
     is_common_use: false,
     created_at: meme.created_at,
   }));
