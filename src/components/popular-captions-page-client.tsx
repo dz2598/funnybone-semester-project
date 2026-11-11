@@ -354,7 +354,7 @@ export default function PopularCaptionsPageClient({
               : "text-muted-foreground hover:bg-primary/10 hover:text-primary"
           }`}
         >
-          LIKED BY ME
+          LIKES
         </button>
         <button
           type="button"
@@ -366,7 +366,7 @@ export default function PopularCaptionsPageClient({
               : "text-muted-foreground hover:bg-primary/10 hover:text-primary"
           }`}
         >
-          PUBLISHED BY ME
+          POSTS
         </button>
       </div>
 
