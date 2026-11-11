@@ -2,13 +2,9 @@ import { ThemeProvider } from "next-themes";
 import { Poppins, Merriweather_Sans } from "next/font/google";
 import Link from "next/link";
 
-import HeaderAuth from "@/components/header-auth";
-import NavigationMenu from "@/components/navigation-menu";
 import { Toaster } from "@/components/ui/toaster";
 import { createAuthClient } from "@/utils/supabase/auth-server";
 import { BugReportDialog } from "@/components/bug-report-dialog";
-import { ThemeAwareLogo } from "@/components/theme-aware-logo";
-import ThemeToggle from "@/components/ThemeToggle";
 import { ThemeFavicon } from "@/components/theme-favicon";
 import { CaptionGenerationProvider } from "@/components/caption-generation-provider";
 
@@ -90,26 +86,18 @@ export default async function RootLayout({
           <ThemeFavicon />
           <main className="min-h-screen flex flex-col items-center">
             <div className="w-full flex flex-col gap-4">
-              <nav className="w-full flex justify-center border-b border-primary/20 h-20 bg-background/90 backdrop-blur">
-                <div
-                  className="w-full max-w-6xl flex justify-between items-center p-3
-                                px-5 text-sm"
-                >
-                  <div className="flex gap-5 items-center font-semibold">
-                    <ThemeAwareLogo />
-                  </div>
-                  <div className="flex items-center gap-4 sm:gap-6">
-                    {/* 
-                      Navigation menu with active route detection -
-                      only show for non-anonymous users
-                    */}
-                    {user && !user.is_anonymous && <NavigationMenu />}
-                    {!user && <ThemeToggle />}
-                    {/* HeaderAuth component */}
-                    <div className="flex items-center text-xs sm:text-sm md:text-base">
-                      <HeaderAuth user={user} />
-                    </div>
-                  </div>
+              <nav
+                className="flex h-20 w-full justify-center border-b border-primary/20
+                           bg-background/90 backdrop-blur"
+              >
+                <div className="flex w-full max-w-6xl items-center px-5">
+                  <Link
+                    href="/"
+                    className="text-lg font-bold tracking-[0.18em] text-primary
+                               transition-colors hover:text-primary/75"
+                  >
+                    MY MEMES
+                  </Link>
                 </div>
               </nav>
               <div className="flex flex-col gap-8 w-full max-w-6xl mx-auto px-3">
