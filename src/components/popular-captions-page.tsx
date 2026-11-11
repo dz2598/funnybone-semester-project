@@ -1,4 +1,5 @@
 import { fetchPopularCaptionsAction } from "@/app/actions/captions/fetch-popular-captions-action";
+import type { MyMemesSection } from "@/app/actions/captions/fetch-popular-captions-action";
 import { fetchUserCaptionVotesAction } from "@/app/actions/captions";
 import { checkAuthStatusAction } from "@/app/actions/auth/check-auth-status";
 import PopularCaptionsPageClient from "@/components/popular-captions-page-client";
@@ -21,6 +22,7 @@ interface PopularCaptionsPageProps {
   pastMonthHref?: string;
   pastYearHref?: string;
   allTimeHref?: string;
+  initialSection?: MyMemesSection;
 }
 
 export default async function PopularCaptionsPage({
@@ -29,6 +31,7 @@ export default async function PopularCaptionsPage({
   pastMonthHref,
   pastYearHref,
   allTimeHref,
+  initialSection = "liked",
 }: PopularCaptionsPageProps) {
   const auth = await checkAuthStatusAction();
   const isAuthenticated = auth.isAuthenticated && !auth.isAnonymous;
@@ -39,7 +42,8 @@ export default async function PopularCaptionsPage({
 
   const captions = (await fetchPopularCaptionsAction(
     100,
-    initialFilter
+    initialFilter,
+    initialSection
   )) as PopularCaption[];
 
   let initialUserVotes: Record<string, 1 | -1 | null> = {};
@@ -58,6 +62,7 @@ export default async function PopularCaptionsPage({
       initialCaptions={captions}
       initialUserVotes={initialUserVotes}
       initialIsAuthenticated={isAuthenticated}
+      initialSection={initialSection}
     />
   );
 }

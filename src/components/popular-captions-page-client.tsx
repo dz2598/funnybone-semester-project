@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { fetchPopularCaptionsAction } from "@/app/actions/captions/fetch-popular-captions-action";
+import type { MyMemesSection } from "@/app/actions/captions/fetch-popular-captions-action";
 import {
   toggleCaptionVoteAction,
   fetchUserCaptionVotesAction,
@@ -73,6 +74,7 @@ interface PopularCaptionsPageClientProps {
   initialCaptions?: PopularCaption[];
   initialUserVotes?: Record<string, 1 | -1 | null>;
   initialIsAuthenticated?: boolean;
+  initialSection?: MyMemesSection;
 }
 
 const filterOptions: Array<{ key: PopularCaptionsFilter; label: string }> = [
@@ -91,6 +93,7 @@ export default function PopularCaptionsPageClient({
   initialCaptions = [],
   initialUserVotes = {},
   initialIsAuthenticated = false,
+  initialSection = "liked",
 }: PopularCaptionsPageClientProps) {
   const [popularCaptions, setPopularCaptions] = useState<PopularCaption[]>(initialCaptions);
   const [userVotes, setUserVotes] = useState<Record<string, 1 | -1 | null>>(initialUserVotes);
@@ -106,6 +109,7 @@ export default function PopularCaptionsPageClient({
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [savedCaptions, setSavedCaptions] = useState<string[]>([]);
   const isFirstLoad = useRef(true);
+  const [section, setSection] = useState<MyMemesSection>(initialSection);
 
   const [filter, setFilter] = useState<PopularCaptionsFilter>(initialFilter);
   const filterHrefs: Partial<Record<PopularCaptionsFilter, string>> = {
@@ -124,7 +128,7 @@ export default function PopularCaptionsPageClient({
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const captions = await fetchPopularCaptionsAction(100, filter);
+        const captions = await fetchPopularCaptionsAction(100, filter, section);
         const auth = await checkAuthStatusAction();
         setIsAuthenticated(auth.isAuthenticated && !auth.isAnonymous);
         setPopularCaptions(captions);
@@ -152,7 +156,7 @@ export default function PopularCaptionsPageClient({
     };
 
     fetchData();
-  }, [toast, filter]);
+  }, [toast, filter, section]);
 
   const handleVote = async (captionId: string, voteValue: 1 | -1) => {
     if (!isAuthenticated) {
@@ -206,6 +210,10 @@ export default function PopularCaptionsPageClient({
 
     try {
       await toggleCaptionVoteAction(captionId, voteValue);
+      if (section === "liked" && newVoteValue !== 1) {
+        setPopularCaptions((prev) => prev.filter((caption) => caption.id !== captionId));
+        setSelectedIndex(null);
+      }
     } catch (error) {
       console.error("Error updating vote:", error);
       // Revert optimistic update
@@ -333,6 +341,35 @@ export default function PopularCaptionsPageClient({
         </p>
       </div>
 
+      <div
+        className="mx-auto mb-6 grid w-full max-w-2xl grid-cols-2
+                   border border-primary/30 bg-card"
+      >
+        <button
+          type="button"
+          onClick={() => setSection("liked")}
+          className={`px-4 py-4 text-sm font-semibold tracking-[0.12em] transition-colors ${
+            section === "liked"
+              ? "bg-primary text-primary-foreground"
+              : "text-muted-foreground hover:bg-primary/10 hover:text-primary"
+          }`}
+        >
+          LIKED BY ME
+        </button>
+        <button
+          type="button"
+          onClick={() => setSection("published")}
+          className={`border-l border-primary/30 px-4 py-4 text-sm font-semibold
+                      tracking-[0.12em] transition-colors ${
+            section === "published"
+              ? "bg-primary text-primary-foreground"
+              : "text-muted-foreground hover:bg-primary/10 hover:text-primary"
+          }`}
+        >
+          PUBLISHED BY ME
+        </button>
+      </div>
+
       <div className="flex justify-center mb-8 relative" style={{ height: "44px" }}>
         <div
           className="relative flex justify-between w-full max-w-[620px] h-[36px] sm:h-[44px]
@@ -448,9 +485,16 @@ export default function PopularCaptionsPageClient({
         </div>
       {visibleCaptions.length === 0 ? (
         <div className="mx-auto mt-12 max-w-lg text-center">
-          <p className="text-lg font-semibold text-foreground">Your feed is ready for its first meme.</p>
+          <p className="text-lg font-semibold text-foreground">
+            {section === "liked"
+              ? "You have not liked any memes yet."
+              : "Your archive is ready for its first meme."}
+          </p>
           <p className="mt-2 text-sm text-muted-foreground">
-            Create a post in Humor Project or tap New Post. Only content linked to your account appears here.
+            {section === "liked"
+              ? "Upvote a meme in Humor Project and it will appear here."
+              : "Create a post in Humor Project or tap New Post. " +
+                "Only content linked to your account appears here."}
           </p>
         </div>
       ) : (

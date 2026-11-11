@@ -3,6 +3,7 @@
 import { createAuthClient } from "@/utils/supabase/auth-server";
 
 type Period = "all" | "year" | "past30" | "week";
+export type MyMemesSection = "liked" | "published";
 
 type HumorProjectMeme = {
   id: number;
@@ -18,7 +19,8 @@ type HumorProjectVote = {
 
 export const fetchPopularCaptionsAction = async (
   limit = 100,
-  period: Period = "all"
+  period: Period = "all",
+  section: MyMemesSection = "liked"
 ) => {
   const supabase = await createAuthClient();
   const {
@@ -27,12 +29,34 @@ export const fetchPopularCaptionsAction = async (
 
   if (!user || user.is_anonymous) return [];
 
+  let likedMemeIds: number[] | null = null;
+  if (section === "liked") {
+    const { data: likedVotes, error: likedVotesError } = await supabase
+      .from("votes")
+      .select("meme_id, created_at")
+      .eq("user_id", user.id)
+      .eq("vote_value", 1)
+      .order("created_at", { ascending: false });
+
+    if (likedVotesError) {
+      throw new Error(`Failed to load your liked memes: ${likedVotesError.message}`);
+    }
+
+    likedMemeIds = Array.from(
+      new Set((likedVotes ?? []).map((vote) => Number(vote.meme_id)))
+    ).filter(Number.isSafeInteger);
+    if (likedMemeIds.length === 0) return [];
+  }
+
   let query = supabase
     .from("memes")
     .select("id, image_url, caption, created_at")
-    .eq("user_id", user.id)
     .order("created_at", { ascending: false })
     .limit(limit);
+
+  query = section === "published"
+    ? query.eq("user_id", user.id)
+    : query.in("id", likedMemeIds ?? []);
 
   if (period !== "all") {
     const since = new Date();
